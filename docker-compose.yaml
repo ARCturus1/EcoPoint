@@ -1,0 +1,163 @@
+services:
+  # API Gateway Service (KrakenD)
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: eco-point-gateway
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./gateway/krakend.json:/etc/krakend/krakend.json:ro
+      - ./gateway/.env:/etc/krakend/.env:ro
+    networks:
+      - eco-point-network
+    depends_on:
+      - auth-service
+      - user-stats-service
+      - bins-service
+    restart: unless-stopped
+    environment:
+      - FC_ENABLE=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/__health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Authentication Microservice
+  auth-service:
+    build:
+      context: .
+      dockerfile: ./microservices/auth/Dockerfile
+    container_name: eco-point-auth-service
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./common:/app/common:ro
+      - ./microservices/auth:/app/microservices/auth
+      - ./microservices/auth/.env:/app/microservices/auth/.env:ro
+      - ./microservices/auth/keys:/app/microservices/auth/keys:ro
+      - ./microservices/auth/auth.db:/app/microservices/auth/auth.db
+      - ./microservices/auth/alembic.ini:/app/microservices/auth/alembic.ini:ro
+      - ./microservices/auth/migrations:/app/microservices/auth/migrations:ro
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///app/microservices/auth/auth.db
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+      - ALGORITHM=RS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - REFRESH_TOKEN_EXPIRE_DAYS=7
+    networks:
+      - eco-point-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/api/auth/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  user-stats-service:
+    build:
+      context: .
+      dockerfile: ./microservices/user_stats/Dockerfile
+    container_name: eco-point-user-stats-service
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./common:/app/common:ro
+      - ./microservices/user_stats:/app/microservices/user_stats
+      - ./microservices/user_stats/.env:/app/microservices/user_stats/.env:ro
+      - ./microservices/user_stats/user_stats.db:/app/microservices/user_stats/user_stats.db
+      - ./microservices/user_stats/alembic.ini:/app/microservices/user_stats/alembic.ini:ro
+      - ./microservices/user_stats/migrations:/app/microservices/user_stats/migrations:ro
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///app/microservices/user_stats/user_stats.db
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+      - ALGORITHM=RS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - REFRESH_TOKEN_EXPIRE_DAYS=7
+    networks:
+      - eco-point-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/api/user-stats/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  bins-service:
+    build:
+      context: .
+      dockerfile: ./microservices/bins/Dockerfile
+    container_name: eco-point-bins-service-service
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./common:/app/common:ro
+      - ./microservices/bins:/app/microservices/bins
+      - ./microservices/bins/.env:/app/microservices/bins/.env:ro
+      - ./microservices/bins/bins.db:/app/microservices/bins/bins.db
+      - ./microservices/bins/alembic.ini:/app/microservices/bins/alembic.ini:ro
+      - ./microservices/bins/migrations:/app/microservices/bins/migrations:ro
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///app/microservices/bins/bins.db
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+      - ALGORITHM=RS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - REFRESH_TOKEN_EXPIRE_DAYS=7
+    networks:
+      - eco-point-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/api/bins/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # User Stats Microservice (placeholder)
+  # user-stats-service:
+  #   build:
+  #     context: ./microservices/user-stats
+  #     dockerfile: Dockerfile
+  #   container_name: eco-point-user-stats-service
+  #   ports:
+  #     - "8002:8002"
+  #   volumes:
+  #     - ./common:/app/common:ro
+  #     - ./microservices/user-stats:/app/microservices/user-stats:ro
+  #     - ./microservices/user-stats/.env:/app/microservices/user-stats/.env:ro
+  #   environment:
+  #     - DATABASE_URL=sqlite:///app/microservices/user-stats/user_stats.db
+  #   networks:
+  #     - eco-point-network
+  #   restart: unless-stopped
+
+  # # Deposits Microservice (placeholder)
+  # deposits-service:
+  #   build:
+  #     context: ./microservices/deposits
+  #     dockerfile: Dockerfile
+  #   container_name: eco-point-deposits-service
+  #   ports:
+  #     - "8003:8003"
+  #   volumes:
+  #     - ./common:/app/common:ro
+  #     - ./microservices/deposits:/app/microservices/deposits:ro
+  #     - ./microservices/deposits/.env:/app/microservices/deposits/.env:ro
+  #   environment:
+  #     - DATABASE_URL=sqlite:///app/microservices/deposits/deposits.db
+  #   networks:
+  #     - eco-point-network
+  #   restart: unless-stopped
+
+networks:
+  eco-point-network:
+    driver: bridge
+    name: microservices-network
+    # ipam:
+    #   config:
+    #     - subnet: 172.20.0.0/16

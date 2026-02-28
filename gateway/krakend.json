@@ -1,0 +1,292 @@
+{
+  "version": 3,
+  "name": "Production Gateway",
+  "port": 8080,
+  "timeout": "3000ms",
+  "cache_ttl": "300s",
+  "output_encoding": "json",
+  "extra_config": {
+    "qos/ratelimit/router": {
+      "max_rate": 1000,
+      "client_max_rate": 100,
+      "every": "1m"
+    },
+    "telemetry/logging": {
+      "level": "DEBUG",
+      "prefix": "[KRAKEND]",
+      "syslog": false,
+      "stdout": true,
+      "format": "json"
+    }
+  },
+  "endpoints": [
+    {
+      "endpoint": "/api/v1/users",
+      "method": "GET",
+      "output_encoding": "json",
+      "backend": [
+        {
+          "url_pattern": "/users/",
+          "host": [
+            "http://user-service:8000"
+          ],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/v1/orders",
+      "method": "POST",
+      "backend": [
+        {
+          "url_pattern": "/orders/",
+          "host": [
+            "http://order-service:8000"
+          ],
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/auth/health",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/api/auth/health",
+          "host": [
+            "http://auth-service:8001"
+          ],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/user-stats/health",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/api/user-stats/health",
+          "host": [
+            "http://user-stats-service:8003"
+          ],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/bins/health",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/api/bins/health",
+          "host": [
+            "http://bins-service:8002"
+          ],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/auth",
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "audience": [
+            "eco-point-auth-service"
+          ],
+          "issuer": "http://ecopoint-auth-service.com",
+          "jwk_url": "http://auth-service:8001/api/auth/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 300,
+          "disable_jwk_security": true
+        }
+      },
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/api/auth",
+          "host": [
+            "http://auth-service:8001"
+          ],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/auth",
+      "input_headers": [
+        "Authorization",
+        "Accept",
+        "Content-Type"
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "audience": [
+            "eco-point-auth-service"
+          ],
+          "issuer": "http://ecopoint-auth-service.com",
+          "jwk_url": "http://auth-service:8001/api/auth/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 300,
+          "disable_jwk_security": true
+        }
+      },
+      "method": "PATCH",
+      "backend": [
+        {
+          "url_pattern": "/api/auth",
+          "host": [
+            "http://auth-service:8001"
+          ],
+          "method": "PATCH"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/auth",
+      "input_headers": [
+        "Authorization",
+        "Accept",
+        "Content-Type"
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "audience": [
+            "eco-point-auth-service"
+          ],
+          "issuer": "http://ecopoint-auth-service.com",
+          "jwk_url": "http://auth-service:8001/api/auth/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 300,
+          "disable_jwk_security": true
+        }
+      },
+      "method": "DELETE",
+      "backend": [
+        {
+          "url_pattern": "/api/auth",
+          "host": [
+            "http://auth-service:8001"
+          ],
+          "method": "DELETE"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/auth/get_user",
+      "input_headers": [
+        "Authorization",
+        "Accept",
+        "Content-Type"
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "audience": [
+            "eco-point-auth-service"
+          ],
+          "issuer": "http://ecopoint-auth-service.com",
+          "jwk_url": "http://auth-service:8001/api/auth/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 300,
+          "disable_jwk_security": true
+        }
+      },
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/api/auth/get_user",
+          "host": [
+            "http://auth-service:8001"
+          ],
+          "method": "GET"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/auth/refresh",
+      "input_headers": [
+        "Authorization",
+        "Accept",
+        "Content-Type"
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "audience": [
+            "eco-point-auth-service"
+          ],
+          "issuer": "http://ecopoint-auth-service.com",
+          "jwk_url": "http://auth-service:8001/api/auth/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 300,
+          "disable_jwk_security": true
+        }
+      },
+      "method": "POST",
+      "backend": [
+        {
+          "url_pattern": "/api/auth/refresh",
+          "host": [
+            "http://auth-service:8001"
+          ],
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/auth/login",
+      "method": "POST",
+      "backend": [
+        {
+          "url_pattern": "/api/auth/login",
+          "host": [
+            "http://auth-service:8001"
+          ],
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "endpoint": "/auth/login",
+      "method": "POST",
+      "backend": [
+        {
+          "url_pattern": "/api/auth/token",
+          "host": [
+            "http://auth-service:8001"
+          ],
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/auth/register",
+      "method": "POST",
+      "backend": [
+        {
+          "url_pattern": "/api/auth/register",
+          "host": [
+            "http://auth-service:8001"
+          ],
+          "method": "POST"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/auth/delete",
+      "method": "POST",
+      "backend": [
+        {
+          "url_pattern": "/api/auth/delete",
+          "host": [
+            "http://auth-service:8001"
+          ],
+          "method": "POST"
+        }
+      ]
+    }
+  ]
+}
