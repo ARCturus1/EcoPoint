@@ -12,6 +12,7 @@ from schemas import (
     RefreshModel,
     RegisterRequestModel,
     UserModel,
+    TokenPayloadData,
 )
 from service import AuthService
 from utils import get_token_payload, verify_refresh_token
@@ -56,7 +57,9 @@ async def create_access_token(
         unauthed()
         return None
 
-    token_pair = crudService.create_tokens_pair(user.email)
+    token_pair = crudService.create_tokens_pair(
+        TokenPayloadData(id=str(user.id or 0), email=user.email)
+    )
 
     if token_pair:
         return LoginResponseModel(
@@ -67,12 +70,10 @@ async def create_access_token(
         return None
 
 
-@router.get("/get_user")
-async def get_current_user(
-    tokenPayload: dict = Depends(get_token_payload),
-) -> UserModel | None:
+@router.get("/get_user/{email}")
+async def get_current_user(email: str) -> UserModel | None:
     try:
-        return await crudService.get_one(email=tokenPayload["sub"])
+        return await crudService.get_one(email=email)
     except MissingException as exc:
         raise HTTPException(status_code=404, detail=exc.message)
 
@@ -91,23 +92,23 @@ async def register(body: RegisterRequestModel = Body(None)) -> UserModel | None:
     # return RegisterResponseModel(accessToken="accessToken", refrrefresh_token_requiredeshToken="refreshToken")
 
 
-@router.patch("", response_model=UserModel)
+@router.patch("/{email}", response_model=UserModel)
 async def update_user(
+    email: str,
     user: EditUserModel = Body(),
-    tokenPayload: dict = Depends(get_token_payload),
 ) -> UserModel | None:
     try:
-        return await crudService.modify(user, email=tokenPayload["sub"])
+        return await crudService.modify(user, email=email)
     except MissingException as exc:
         raise HTTPException(status_code=404, detail=exc.message)
 
 
-@router.delete("/delete")
+@router.delete("/delete/{email}")
 async def delete(
-    tokenPayload: dict = Depends(get_token_payload),
+    email: str,
 ) -> None:
     try:
-        await crudService.delete(email=tokenPayload["sub"])
+        await crudService.delete(email=email)
     except MissingException as exc:
         raise HTTPException(status_code=404, detail=exc.message)
 
@@ -141,7 +142,9 @@ async def refresh(
             )
 
         # Create new token pair
-        token_pair = crudService.create_tokens_pair(refresh_payload["sub"])
+        token_pair = crudService.create_tokens_pair(
+            TokenPayloadData(id=refresh_payload["id"], email=refresh_payload["email"])
+        )
 
         if token_pair:
             return LoginResponseModel(
@@ -165,7 +168,9 @@ async def login(body: LoginRequestModel = Body()) -> LoginResponseModel | None:
         unauthed()
         return None
 
-    token_pair = crudService.create_tokens_pair(user.email)
+    token_pair = crudService.create_tokens_pair(
+        TokenPayloadData(id=str(user.id or 0), email=user.email)
+    )
 
     if token_pair:
         return LoginResponseModel(

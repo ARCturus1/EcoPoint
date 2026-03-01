@@ -14,13 +14,12 @@ from common.base.service import BaseService
 from data import UserData
 from models import UserOrm
 from schemas import (
-    RequestCreateUserModel,
     CreateUserModel,
     EditUserModel,
     TokenModel,
     UserModel,
+    TokenPayloadData,
 )
-from database import get_async_alchemy_session
 from utils import (
     get_public_jwk,
     pwd_context,
@@ -29,16 +28,16 @@ from utils import (
     create_refresh_token,
 )
 from dotenv import load_dotenv
+from database import database_path
 
 load_dotenv()
 AUDIENCE = os.getenv("AUDIENCE")
-
 
 class AuthService(BaseService[UserModel, CreateUserModel, EditUserModel, UserOrm]):
     dataCrud: BaseRepository[UserOrm, UserModel, CreateUserModel, EditUserModel]
 
     def __init__(self) -> None:
-        self.dataCrud = UserData(get_async_alchemy_session)
+        self.dataCrud = UserData(database_path or "")
         super().__init__()
 
     schema_response = UserModel
@@ -66,16 +65,13 @@ class AuthService(BaseService[UserModel, CreateUserModel, EditUserModel, UserOrm
         return user
 
     def create_tokens_pair(
-        self, email: str, data: dict | None = None
+        self, user: TokenPayloadData, data: dict | None = None
     ) -> TokenModel | None:
-        if not email:
+        if not user:
             return None
 
-        # access_token = security.create_access_token(
-        #     uid=email, data=data, audience=AUDIENCE
-        # )
-        access_token = create_access_token({"sub": email})
-        refresh_token = create_refresh_token({"sub": email})
+        access_token = create_access_token({"sub": user.email, "userId": user.id})
+        refresh_token = create_refresh_token({"sub": user.email, "userId": user.id})
 
         return TokenModel(
             access_token=access_token,

@@ -9,7 +9,7 @@ from common import BaseService
 from data import BinsData
 from models import BinOrm
 from schemas import CreateBinModel, GetBinModel, UpdateBinModel
-from database import get_async_alchemy_session
+from database import database_path
 
 
 class BinsService(
@@ -23,7 +23,7 @@ class BinsService(
     dataCrud: BaseRepository[BinOrm, GetBinModel, CreateBinModel, UpdateBinModel]
 
     def __init__(self) -> None:
-        self.dataCrud = BinsData(get_async_alchemy_session)
+        self.dataCrud = BinsData(database_path or "")
         super().__init__()
 
     schema_response = GetBinModel

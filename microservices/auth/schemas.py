@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 from dataclasses import dataclass
 
 from pydantic import BaseModel, EmailStr, Field, model_validator
@@ -71,3 +71,9 @@ class CreateUserModel(RequestCreateUserModel):
 class EditUserModel(BaseModel):
     email: EmailStr | None = None
     name: str | None = None
+
+
+@dataclass
+class TokenPayloadData:
+    id: str
+    email: str

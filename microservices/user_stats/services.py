@@ -4,7 +4,7 @@ from pathlib import Path
 # Add parent directory to Python path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from database import get_async_alchemy_session
+from database import database_path
 from common.base import BaseRepository
 from models import UserStatsOrm
 from schemas import (
@@ -21,13 +21,12 @@ class UserStatsService(
         GetUserStatsModel, CreateUserStatsModel, UpdateUserStatsModel, UserStatsOrm
     ]
 ):
-    # model: type[UserStatsModel] = UserStatsModel
     dataCrud: BaseRepository[
         UserStatsOrm, GetUserStatsModel, CreateUserStatsModel, UpdateUserStatsModel
     ]
 
     def __init__(self) -> None:
-        self.dataCrud = UserStatsData(get_async_alchemy_session)
+        self.dataCrud = UserStatsData(database_path or "")
         super().__init__()
 
     schema_response = GetUserStatsModel

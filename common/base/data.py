@@ -60,9 +60,9 @@ class BaseRepository[
     schema_create: type[CreateSchema]
     schema_update: type[UpdateSchema]
 
-    def __init__(self, async_alchemy_session, **kwargs: Any) -> None:
+    def __init__(self, database_name: str, **kwargs: Any) -> None:
         """Initialize the BaseCrudData instance."""
-        self.async_alchemy_session = async_alchemy_session
+        self._database_name = database_name
         super().__init__(**kwargs)
 
     @connection()

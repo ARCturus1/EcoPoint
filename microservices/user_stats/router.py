@@ -4,7 +4,7 @@ import sys
 # Add parent directory to Python path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body, HTTPException, Header
 from common.errors import MissingException
 from schemas import CreateUserStatsModel, GetUserStatsModel, UpdateUserStatsModel
 from services import UserStatsService
@@ -26,10 +26,19 @@ async def get_all() -> dict[str, list[GetUserStatsModel] | int]:
     return {"stats": stats, "count": len(stats)}
 
 
+@router.get("/get_by_user_id")
+async def get_by_user_id(x_user_id: str = Header()) -> GetUserStatsModel | None:
+    try:
+        result = await crudUserStats.get_one(userId=x_user_id)
+        return result
+    except MissingException as exc:
+        raise HTTPException(status_code=404, detail=exc.message)
+
+
 @router.get("/{id}")
 async def get_one(id: int) -> GetUserStatsModel | None:
     try:
-        result = await crudUserStats.get_one(id=id)
+        result = await crudUserStats.get_one(userId=id)
         return result
     except MissingException as exc:
         raise HTTPException(status_code=404, detail=exc.message)

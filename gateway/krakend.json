@@ -114,11 +114,6 @@
     },
     {
       "endpoint": "/api/auth",
-      "input_headers": [
-        "Authorization",
-        "Accept",
-        "Content-Type"
-      ],
       "extra_config": {
         "auth/validator": {
           "alg": "RS256",
@@ -135,7 +130,7 @@
       "method": "PATCH",
       "backend": [
         {
-          "url_pattern": "/api/auth",
+          "url_pattern": "/api/auth/{JWT.sub}",
           "host": [
             "http://auth-service:8001"
           ],
@@ -145,11 +140,6 @@
     },
     {
       "endpoint": "/api/auth",
-      "input_headers": [
-        "Authorization",
-        "Accept",
-        "Content-Type"
-      ],
       "extra_config": {
         "auth/validator": {
           "alg": "RS256",
@@ -166,7 +156,7 @@
       "method": "DELETE",
       "backend": [
         {
-          "url_pattern": "/api/auth",
+          "url_pattern": "/api/auth/{JWT.sub}",
           "host": [
             "http://auth-service:8001"
           ],
@@ -176,11 +166,6 @@
     },
     {
       "endpoint": "/api/auth/get_user",
-      "input_headers": [
-        "Authorization",
-        "Accept",
-        "Content-Type"
-      ],
       "extra_config": {
         "auth/validator": {
           "alg": "RS256",
@@ -197,7 +182,7 @@
       "method": "GET",
       "backend": [
         {
-          "url_pattern": "/api/auth/get_user",
+          "url_pattern": "/api/auth/get_user/{JWT.sub}",
           "host": [
             "http://auth-service:8001"
           ],
@@ -250,19 +235,6 @@
       ]
     },
     {
-      "endpoint": "/auth/login",
-      "method": "POST",
-      "backend": [
-        {
-          "url_pattern": "/api/auth/token",
-          "host": [
-            "http://auth-service:8001"
-          ],
-          "method": "POST"
-        }
-      ]
-    },
-    {
       "endpoint": "/api/auth/register",
       "method": "POST",
       "backend": [
@@ -276,17 +248,30 @@
       ]
     },
     {
-      "endpoint": "/api/auth/delete",
-      "method": "POST",
+      "endpoint": "/api/user-stats/one",
+      "method": "GET",
       "backend": [
         {
-          "url_pattern": "/api/auth/delete",
           "host": [
-            "http://auth-service:8001"
+            "http://user-stats-service:8003"
           ],
-          "method": "POST"
+          "url_pattern": "/api/user-stats/{JWT.userId}",
+          "method": "GET"
         }
-      ]
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "audience": [
+            "eco-point-auth-service"
+          ],
+          "issuer": "http://ecopoint-auth-service.com",
+          "jwk_url": "http://auth-service:8001/api/auth/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 300,
+          "disable_jwk_security": true
+        }
+      }
     }
   ]
 }
