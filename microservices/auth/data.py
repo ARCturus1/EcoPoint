@@ -1,3 +1,5 @@
+from typing import Any
+
 from common.base.data import BaseRepository
 from models import UserOrm
 from schemas import (
@@ -9,7 +11,9 @@ from schemas import (
 
 
 class UserData(BaseRepository[UserOrm, UserModel, CreateUserModel, EditUserModel]):
-    model = UserOrm
-    schema_response = UserModel
-    schema_create = CreateUserModel
-    schema_update = EditUserModel
+    def __init__(self, database_name: str, **kwargs: Any) -> None:
+        super().__init__(database_name, **kwargs)
+        self.model = UserOrm
+        self.schema_response = UserModel
+        self.schema_create = CreateUserModel
+        self.schema_update = EditUserModel

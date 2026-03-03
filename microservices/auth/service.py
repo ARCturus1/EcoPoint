@@ -39,10 +39,9 @@ class AuthService(BaseService[UserModel, CreateUserModel, EditUserModel, UserOrm
     def __init__(self) -> None:
         self.dataCrud = UserData(database_path or "")
         super().__init__()
-
-    schema_response = UserModel
-    schema_create = CreateUserModel
-    schema_update = EditUserModel
+        self.schema_response = UserModel
+        self.schema_create = CreateUserModel
+        self.schema_update = EditUserModel
 
     async def create(self, obj_in: CreateUserModel) -> UserModel | None:
         obj_in.hash = pwd_context.hash(obj_in.hash)

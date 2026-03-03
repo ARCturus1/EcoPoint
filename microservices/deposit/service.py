@@ -27,7 +27,6 @@ class DepositService(
     def __init__(self) -> None:
         self.dataCrud = DepositData(database_path)
         super().__init__()
-
-    schema_response = GetDepositModel
-    schema_create = CreateDepositModel
-    schema_update = UpdateDepositModel
+        self.schema_response = GetDepositModel
+        self.schema_create = CreateDepositModel
+        self.schema_update = UpdateDepositModel

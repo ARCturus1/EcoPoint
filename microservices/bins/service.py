@@ -25,7 +25,6 @@ class BinsService(
     def __init__(self) -> None:
         self.dataCrud = BinsData(database_path or "")
         super().__init__()
-
-    schema_response = GetBinModel
-    schema_create = CreateBinModel
-    schema_update = UpdateBinModel
+        self.schema_response = GetBinModel
+        self.schema_create = CreateBinModel
+        self.schema_update = UpdateBinModel

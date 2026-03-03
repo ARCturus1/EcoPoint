@@ -28,7 +28,6 @@ class UserStatsService(
     def __init__(self) -> None:
         self.dataCrud = UserStatsData(database_path or "")
         super().__init__()
-
-    schema_response = GetUserStatsModel
-    schema_create = CreateUserStatsModel
-    schema_update = UpdateUserStatsModel
+        self.schema_response = GetUserStatsModel
+        self.schema_create = CreateUserStatsModel
+        self.schema_update = UpdateUserStatsModel
