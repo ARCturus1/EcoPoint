@@ -16,6 +16,7 @@ services:
       - auth-service
       - user-stats-service
       - bins-service
+      - deposit-service
     restart: unless-stopped
     environment:
       - FC_ENABLE=1
@@ -118,41 +119,36 @@ services:
       retries: 3
       start_period: 40s
 
-  # User Stats Microservice (placeholder)
-  # user-stats-service:
-  #   build:
-  #     context: ./microservices/user-stats
-  #     dockerfile: Dockerfile
-  #   container_name: eco-point-user-stats-service
-  #   ports:
-  #     - "8002:8002"
-  #   volumes:
-  #     - ./common:/app/common:ro
-  #     - ./microservices/user-stats:/app/microservices/user-stats:ro
-  #     - ./microservices/user-stats/.env:/app/microservices/user-stats/.env:ro
-  #   environment:
-  #     - DATABASE_URL=sqlite:///app/microservices/user-stats/user_stats.db
-  #   networks:
-  #     - eco-point-network
-  #   restart: unless-stopped
-
-  # # Deposits Microservice (placeholder)
-  # deposits-service:
-  #   build:
-  #     context: ./microservices/deposits
-  #     dockerfile: Dockerfile
-  #   container_name: eco-point-deposits-service
-  #   ports:
-  #     - "8003:8003"
-  #   volumes:
-  #     - ./common:/app/common:ro
-  #     - ./microservices/deposits:/app/microservices/deposits:ro
-  #     - ./microservices/deposits/.env:/app/microservices/deposits/.env:ro
-  #   environment:
-  #     - DATABASE_URL=sqlite:///app/microservices/deposits/deposits.db
-  #   networks:
-  #     - eco-point-network
-  #   restart: unless-stopped
+  # Deposits Microservice
+  deposit-service:
+    build:
+      context: .
+      dockerfile: ./microservices/deposit/Dockerfile
+    container_name: eco-point-deposit-service
+    ports:
+      - "8004:8004"
+    volumes:
+      - ./common:/app/common:ro
+      - ./microservices/deposit:/app/microservices/deposit
+      - ./microservices/deposit/.env:/app/microservices/deposit/.env:ro
+      - ./microservices/deposit/deposit.db:/app/microservices/deposit/deposit.db
+      - ./microservices/deposit/alembic.ini:/app/microservices/deposit/alembic.ini:ro
+      - ./microservices/deposit/migrations:/app/microservices/deposit/migrations:ro
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///app/microservices/deposit/deposit.db
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+      - ALGORITHM=RS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - REFRESH_TOKEN_EXPIRE_DAYS=7
+    networks:
+      - eco-point-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/api/deposit/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 networks:
   eco-point-network:

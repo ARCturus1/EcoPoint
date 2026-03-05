@@ -44,5 +44,5 @@ if __name__ == "__main__":
         "microservices.deposit.main:app",
         reload=True,
         host="0.0.0.0",
-        port=int(PORT or 8005),
+        port=int(PORT or 8004),
     )
