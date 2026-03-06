@@ -1,8 +1,8 @@
 FROM python:3.14.3
 
-COPY /common /app/common
+# COPY /common /app/common
 
-COPY /microservices/deposit /app/microservices/deposit
+COPY . /app/microservices/deposit
 
 WORKDIR /app/microservices/deposit
 
