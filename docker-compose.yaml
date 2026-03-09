@@ -1,4 +1,3 @@
-
 include:
   - ./gateway/docker-compose.yaml
   - ./microservices/auth/docker-compose.yaml
@@ -6,10 +5,10 @@ include:
   - ./microservices/bins/docker-compose.yaml
   - ./microservices/deposit/docker-compose.yaml
 
-# networks:
-#   eco-point-network:
-#     driver: bridge
-#     name: microservices-network
+networks:
+  eco-point-network:
+    driver: bridge
+    name: microservices-network
     # ipam:
     #   config:
     #     - subnet: 172.20.0.0/16

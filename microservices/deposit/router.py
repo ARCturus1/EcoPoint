@@ -6,7 +6,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from common.errors import DuplicateException, MissingException
 from fastapi import APIRouter, Body, HTTPException
-from schemas import CreateDepositModel, GetDepositModel, UpdateDepositModel
+from schemas import (
+    CreateDepositModel,
+    GetDepositModel,
+    RequestCreateDepositModel,
+    UpdateDepositModel,
+    RequestUpdateDepositModel,
+)
 from service import DepositService
 
 
@@ -27,22 +33,25 @@ async def get_deposit(deposit_id: int) -> GetDepositModel | None:
         raise HTTPException(status_code=404, detail=exc.message)
 
 
-@router.post("")
+@router.post("{user_id}")
 async def create_deposit(
-    deposit: CreateDepositModel = Body(),
+    user_id: int,
+    deposit: RequestCreateDepositModel = Body(),
 ) -> GetDepositModel | None:
     try:
-        return await crudService.create(deposit)
+        depositDTO = CreateDepositModel(user_id=user_id, **vars(deposit))
+        return await crudService.create(depositDTO)
     except DuplicateException as exc:
         raise HTTPException(status_code=409, detail=exc.message)
 
 
-@router.patch("/{deposit_id}")
+@router.patch("/{user_id}/{deposit_id}")
 async def update_deposit(
-    deposit_id: int, deposit: UpdateDepositModel
+    user_id: int, deposit_id: int, deposit: RequestUpdateDepositModel
 ) -> GetDepositModel | None:
     try:
-        return await crudService.modify(deposit, id=deposit_id)
+        depositDTO = UpdateDepositModel(user_id=user_id, **vars(deposit))
+        return await crudService.modify(depositDTO, id=deposit_id)
     except MissingException as exc:
         raise HTTPException(status_code=404, detail=exc.message)
 

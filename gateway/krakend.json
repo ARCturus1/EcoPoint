@@ -21,33 +21,6 @@
   },
   "endpoints": [
     {
-      "endpoint": "/api/v1/users",
-      "method": "GET",
-      "output_encoding": "json",
-      "backend": [
-        {
-          "url_pattern": "/users/",
-          "host": [
-            "http://user-service:8000"
-          ],
-          "method": "GET"
-        }
-      ]
-    },
-    {
-      "endpoint": "/api/v1/orders",
-      "method": "POST",
-      "backend": [
-        {
-          "url_pattern": "/orders/",
-          "host": [
-            "http://order-service:8000"
-          ],
-          "method": "POST"
-        }
-      ]
-    },
-    {
       "endpoint": "/api/auth/health",
       "method": "GET",
       "backend": [
@@ -187,6 +160,13 @@
             "http://auth-service:8001"
           ],
           "method": "GET"
+        },
+        {
+          "url_pattern": "/api/user-stats/{JWT.userId}",
+          "host": [
+            "http://user-stats-service:8003"
+          ],
+          "method": "GET"
         }
       ]
     },
@@ -257,6 +237,266 @@
           ],
           "url_pattern": "/api/user-stats/{JWT.userId}",
           "method": "GET"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "audience": [
+            "eco-point-auth-service"
+          ],
+          "issuer": "http://ecopoint-auth-service.com",
+          "jwk_url": "http://auth-service:8001/api/auth/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 300,
+          "disable_jwk_security": true
+        }
+      }
+    },
+    {
+      "endpoint": "/api/deposit",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/api/deposit/",
+          "host": [
+            "http://deposit-service:8004"
+          ],
+          "method": "GET"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "audience": [
+            "eco-point-auth-service"
+          ],
+          "issuer": "http://ecopoint-auth-service.com",
+          "jwk_url": "http://auth-service:8001/api/auth/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 300,
+          "disable_jwk_security": true
+        }
+      }
+    },
+    {
+      "endpoint": "/api/deposit/{deposit_id}",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/api/deposit/{deposit_id}",
+          "host": [
+            "http://deposit-service:8004"
+          ],
+          "method": "GET"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "audience": [
+            "eco-point-auth-service"
+          ],
+          "issuer": "http://ecopoint-auth-service.com",
+          "jwk_url": "http://auth-service:8001/api/auth/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 300,
+          "disable_jwk_security": true
+        }
+      }
+    },
+    {
+      "endpoint": "/api/deposit/create",
+      "method": "POST",
+      "backend": [
+        {
+          "url_pattern": "/api/deposit/{JWT.userId}",
+          "host": [
+            "http://deposit-service:8004"
+          ],
+          "method": "POST"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "audience": [
+            "eco-point-auth-service"
+          ],
+          "issuer": "http://ecopoint-auth-service.com",
+          "jwk_url": "http://auth-service:8001/api/auth/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 300,
+          "disable_jwk_security": true
+        }
+      }
+    },
+    {
+      "endpoint": "/api/deposit/{deposit_id}",
+      "method": "PATCH",
+      "backend": [
+        {
+          "url_pattern": "/api/deposit/{JWT.userId}/{deposit_id}",
+          "host": [
+            "http://deposit-service:8004"
+          ],
+          "method": "PATCH"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "audience": [
+            "eco-point-auth-service"
+          ],
+          "issuer": "http://ecopoint-auth-service.com",
+          "jwk_url": "http://auth-service:8001/api/auth/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 300,
+          "disable_jwk_security": true
+        }
+      }
+    },
+    {
+      "endpoint": "/api/deposit/{deposit_id}",
+      "method": "DELETE",
+      "backend": [
+        {
+          "url_pattern": "/api/deposit/{deposit_id}",
+          "host": [
+            "http://deposit-service:8004"
+          ],
+          "method": "DELETE"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "audience": [
+            "eco-point-auth-service"
+          ],
+          "issuer": "http://ecopoint-auth-service.com",
+          "jwk_url": "http://auth-service:8001/api/auth/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 300,
+          "disable_jwk_security": true
+        }
+      }
+    },
+    {
+      "endpoint": "/api/bins",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/api/bins/",
+          "host": [
+            "http://bins-service:8002"
+          ],
+          "method": "GET"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "audience": [
+            "eco-point-auth-service"
+          ],
+          "issuer": "http://ecopoint-auth-service.com",
+          "jwk_url": "http://auth-service:8001/api/auth/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 300,
+          "disable_jwk_security": true
+        }
+      }
+    },
+    {
+      "endpoint": "/api/bins/{bin_id}",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/api/bins/{bin_id}",
+          "host": [
+            "http://bins-service:8002"
+          ],
+          "method": "GET"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "audience": [
+            "eco-point-auth-service"
+          ],
+          "issuer": "http://ecopoint-auth-service.com",
+          "jwk_url": "http://auth-service:8001/api/auth/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 300,
+          "disable_jwk_security": true
+        }
+      }
+    },
+    {
+      "endpoint": "/api/bins/create",
+      "method": "POST",
+      "backend": [
+        {
+          "url_pattern": "/api/bins/",
+          "host": [
+            "http://bins-service:8002"
+          ],
+          "method": "POST"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "audience": [
+            "eco-point-auth-service"
+          ],
+          "issuer": "http://ecopoint-auth-service.com",
+          "jwk_url": "http://auth-service:8001/api/auth/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 300,
+          "disable_jwk_security": true
+        }
+      }
+    },
+    {
+      "endpoint": "/api/bins/{bin_id}",
+      "method": "PATCH",
+      "backend": [
+        {
+          "url_pattern": "/api/bins/{bin_id}",
+          "host": [
+            "http://bins-service:8002"
+          ],
+          "method": "PATCH"
+        }
+      ],
+      "extra_config": {
+        "auth/validator": {
+          "alg": "RS256",
+          "audience": [
+            "eco-point-auth-service"
+          ],
+          "issuer": "http://ecopoint-auth-service.com",
+          "jwk_url": "http://auth-service:8001/api/auth/.well-known/jwks.json",
+          "cache": true,
+          "cache_duration": 300,
+          "disable_jwk_security": true
+        }
+      }
+    },
+    {
+      "endpoint": "/api/bins/{bin_id}",
+      "method": "DELETE",
+      "backend": [
+        {
+          "url_pattern": "/api/bins/{bin_id}",
+          "host": [
+            "http://bins-service:8002"
+          ],
+          "method": "DELETE"
         }
       ],
       "extra_config": {
